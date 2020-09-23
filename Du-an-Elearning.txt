@@ -1,0 +1,131 @@
+
+-------=========== PHÂN TÍCH CƠ SỞ DỮ LIỆU ============-------------
+- ROLE
+   + id (Khóa chính)
+   + name
+   + description
+
+- USER (1 user - 1 quyền)
+   + id (Khóa chính)
+   + email
+   + fullname
+   + password
+   + avatar
+   + phone
+   + address
+   + role_id (Khóa ngoại)
+
+- CATEGORY
+   + id (Khóa chính)
+   + title
+   + icon
+
+- COURSE
+   + id (Khóa chính)
+   + title
+   + image
+   + letures_count (số bài giảng)
+   + hour_count (số giờ dạy)
+   + last_update (ngày cập nhật)
+   + view_count (số lượt xem)
+   + price
+   + discount (%)
+   + promotion_price (Giá khuyến mãi)
+   + description
+   + description
+   + category_id (Khóa ngoại)
+
+- VIDEO
+   + id (Khóa chính)
+   + title
+   + time_count (Thời lượng)
+   + url
+   + course_id (Khóa ngoại)
+ 
+- TARGET
+   + id (Khóa chính)
+   + title
+   + course_id (Khóa ngoại)
+
+- USER_COURSE
+   + user_id (Khóa chính + ngoại)
+   + course_id (Khóa chính + ngoại)
+   + role_id (Khóa ngoại)
+
+
+-------=========== TẠO CƠ SỞ DỮ LIỆU ============-------------
+
+CREATE SCHEMA `elearning` DEFAULT CHARACTER SET utf8;
+USE elearning;
+
+CREATE TABLE IF NOT EXISTS roles (
+   id INT(11) NOT NULL AUTO_INCREMENT,
+   name VARCHAR(30) NOT NULL UNIQUE,
+   description VARCHAR(255),
+   CONSTRAINT pk_role PRIMARY KEY(id)
+);
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    fullname VARCHAR(100) NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    avatar VARCHAR(255),
+    phone VARCHAR(20),
+    address VARCHAR(255),
+    role_id INT(11) NOT NULL,
+    CONSTRAINT pk_user PRIMARY KEY(id),
+    CONSTRAINT fk_user_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL UNIQUE,
+    icon VARCHAR(20) NOT NULL,
+    CONSTRAINT pk_category PRIMARY KEY(id)
+);
+
+CREATE TABLE IF NOT EXISTS courses (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    image VARCHAR(255) NOT NULL,
+    letures_count INT(11) NOT NULL,
+    hour_count INT(11) NOT NULL,
+    view_count INT(11) DEFAULT '0',
+    price DECIMAL DEFAULT '0',
+    discount INT(11) DEFAULT '0',
+    promotion_price DECIMAL DEFAULT '0',
+    description VARCHAR (255) NOT NULL,
+    content TEXT,
+    category_id INT(11) NOT NULL,
+    last_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT pk_course PRIMARY KEY(id),
+    CONSTRAINT fk_course_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS targets(
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    course_id INT(11) NOT NULL,
+    CONSTRAINT pk_target PRIMARY KEY(id),
+    CONSTRAINT fk_target_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS videos (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    url VARCHAR(255) NOT NULL,
+    time_count INT(11) NOT NULL,
+    course_id INT(11) NOT NULL,
+    CONSTRAINT pk_video PRIMARY KEY(id),
+    CONSTRAINT fk_video_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_courses(
+    user_id INT(11) NOT NULL,
+    course_id INT(11) NOT NULL,
+    role_id INT(11) NOT NULL,
+    CONSTRAINT pk_account_course PRIMARY KEY (user_id, course_id),
+    CONSTRAINT fk_user_course_user FOREIGN KEY (user_id) REFERENCES users(id)  ON DELETE CASCADE,
+    CONSTRAINT fk_user_course_course FOREIGN KEY (course_id) REFERENCES courses(id)  ON DELETE CASCADE
+);
